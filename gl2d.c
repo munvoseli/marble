@@ -46,6 +46,15 @@ typedef struct Pavec {
 	GLint clrloc;
 } Pavec;
 
+typedef struct {
+	float camx;
+	float camy;
+	float cams;
+	struct Pavec pavec;
+	int ww;
+	int wh;
+} camact_t;
+
 void drawWithUniform(int len, const float* points, GLenum mode,
 		     float r, float g, float b,
 		     float x, float y, float sx, float sy,
@@ -61,6 +70,13 @@ void drawWithUniform(int len, const float* points, GLenum mode,
 	glEnableVertexAttribArray(pavec.ploc);
 	glDrawArrays(mode, 0, len / 2);
 	glDeleteBuffers(1, &vbo);
+}
+
+void drawWithCamact(int len, const float* points, GLenum mode,
+		     float r, float g, float b,
+		     camact_t ca) {
+	drawWithUniform(len, points, mode, r, g, b,
+		ca.camx, ca.camy, 100.0, 100.0 * ca.wh / ca.ww, ca.pavec);
 }
 
 SDL_GLContext* gl_setup(SDL_Window* winp) {

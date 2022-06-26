@@ -78,18 +78,68 @@ void fillGlyph(unsigned char g, float* points) {
 			points[i++] = gly_mt[j];
 }
 
-void drawString(const char* str, float camx, float camy, float cams, const Pavec pavec, int w, int h) {
+void drawString(const char* str, float x, float y, camact_t ca) {
 	float* vertdata = NULL;
+	ca.camx -= x;
+	ca.camy -= y;
 	for (int i = 0; str[i] != 0; ++i) {
 		int pan = 6 * getTriCount(str[i]);
 		vertdata = realloc(vertdata, pan * sizeof(float));
 		fillGlyph(str[i], vertdata);
 		for (int j = 0; j < pan; j += 2)
-			vertdata[j] += 4 * i;
-		drawWithUniform(pan, vertdata, GL_TRIANGLES,
-				0.1, 0.0, 0.2,
-				camx, camy, 100, 100.0 * h / w,
-				pavec);
+			vertdata[j] += 5 * i;
+		drawWithCamact(pan, vertdata, GL_TRIANGLES,
+				0.1, 0.2, 0.2, ca);
 	}
 	free(vertdata);
+}
+
+void drawRect(float x0, float y0, float x2, float y2, camact_t ca) {
+	float vertdata[8];
+	vertdata[0] = x0;
+	vertdata[1] = y0;
+	vertdata[2] = x2;
+	vertdata[3] = y0;
+	vertdata[4] = x0;
+	vertdata[5] = y2;
+	vertdata[6] = x2;
+	vertdata[7] = y2;
+	drawWithCamact(8, vertdata, GL_TRIANGLE_STRIP, 0.1, 0.2, 0.2, ca);
+}
+
+void drawTable(float tx, float ty, int tw, int th, char* title, char* boxes, camact_t ca) {
+	drawString(title, tx, ty, ca);
+	int si = 0;
+	int* widths = malloc(sizeof(int) * tw);
+	memset(widths, 0, sizeof(int) * tw);
+	for (int y = 0; y < th; ++y)
+	for (int x = 0; x < tw; ++x) {
+		int l = 1;
+		while (boxes[si]) {
+			++si; ++l;
+		}
+		if (l > widths[x]) widths[x] = l;
+		++si;
+	}
+	{
+		int sum = tw - 1;
+		for (int i = 0; i < tw; ++i) {
+			if (i != tw - 1)
+				drawRect(tx + sum * 5, ty - 7, tx + sum * 5 + 1, ty - 7 * (th + 1) - 5, ca);
+			sum += widths[i];
+		}
+		int si = 0;
+		while (title[si]) ++si;
+		if (si > sum) sum = si;
+		drawRect(tx - 3, ty - 6, tx + si * 5 - 2, ty - 7, ca);
+	}
+	si = 0;
+	for (int y = 0; y < th; ++y) {
+	int xo = 0;
+	for (int x = 0; x < tw; ++x) {
+		drawString(&boxes[si], 5.0 * xo + tx, -10.0 * (y + 1) + ty, ca);
+		xo += widths[x];
+		while (boxes[si]) ++si; ++si;
+	}}
+	free(widths);
 }
