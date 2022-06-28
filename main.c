@@ -1,11 +1,13 @@
 // gcc main.c -lSDL2 -lGL
 
+#include <stdlib.h>
+#include <stdio.h>
 #include "data.h"
 #include "gl2d.c"
 
 
 #include "draw.c"
-#include <stdlib.h>
+
 
 
 
@@ -24,17 +26,19 @@ int main(int argc, char** argv) {
 	ca.pavec = pavec;
 	ca.camx = 0;
 	ca.camy = 0;
-	ca.cams = 0;
+	ca.cams = 50.0;
 //	float camx = 0, camy = 0, cams = 1;
-	
+	fsig_t* fsp = createFsig("hello");
+	addFsigRow(fsp, 2, "s32", "x");
+	addFsigRow(fsp, 1, "s32", "y");
 	for (;;) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) {
 				goto exit;
 			} else if (event.type == SDL_MOUSEWHEEL) {
-				ca.camx -= 0.1 * event.wheel.x;
-				ca.camy += 0.1 * event.wheel.y;
+				ca.camx -= 0.5 * event.wheel.x;
+				ca.camy += 0.5 * event.wheel.y;
 			}
 		}
 		{
@@ -48,11 +52,13 @@ int main(int argc, char** argv) {
 
 		//char* str = "Hello there.";
 		//drawString(str, camx, camy, cams, pavec, w, h);
-		drawTable(0, 0, 2, 2, "gerald", "a\0b\0c\0d", ca);
+		//drawTable(0, 0, 2, 2, "gerald", "a\0o\0c\0o", ca);
+		drawFsig(fsp, 0, 0, ca);
 		SDL_GL_SwapWindow(winp);
 		SDL_Delay(16);
 	}
 exit:
+	free(fsp);
 	SDL_GL_DeleteContext(conp);
 	SDL_Quit();
 	return 0;

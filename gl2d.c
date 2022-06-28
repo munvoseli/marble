@@ -76,7 +76,7 @@ void drawWithCamact(int len, const float* points, GLenum mode,
 		     float r, float g, float b,
 		     camact_t ca) {
 	drawWithUniform(len, points, mode, r, g, b,
-		ca.camx, ca.camy, 100.0, 100.0 * ca.wh / ca.ww, ca.pavec);
+		ca.camx, ca.camy, ca.cams, ca.cams * ca.wh / ca.ww, ca.pavec);
 }
 
 SDL_GLContext* gl_setup(SDL_Window* winp) {

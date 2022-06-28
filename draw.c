@@ -107,6 +107,7 @@ void drawRect(float x0, float y0, float x2, float y2, camact_t ca) {
 	drawWithCamact(8, vertdata, GL_TRIANGLE_STRIP, 0.1, 0.2, 0.2, ca);
 }
 
+
 void drawTable(float tx, float ty, int tw, int th, char* title, char* boxes, camact_t ca) {
 	drawString(title, tx, ty, ca);
 	int si = 0;
@@ -137,9 +138,85 @@ void drawTable(float tx, float ty, int tw, int th, char* title, char* boxes, cam
 	for (int y = 0; y < th; ++y) {
 	int xo = 0;
 	for (int x = 0; x < tw; ++x) {
-		drawString(&boxes[si], 5.0 * xo + tx, -10.0 * (y + 1) + ty, ca);
+		drawString(&boxes[si], 5.0 * xo + tx, -11.0 * (y + 1) + ty - 2, ca);
 		xo += widths[x];
 		while (boxes[si]) ++si; ++si;
 	}}
 	free(widths);
+}
+
+void drawTableIter(float tx, float ty, int tw, int th, char* title,
+		char* (*iterf)(void*), void (*iterreset)(void*), void* iterstate,
+		camact_t ca) {
+	drawString(title, tx, ty, ca);
+	int* widths = malloc(sizeof(int) * tw);
+	memset(widths, 0, sizeof(int) * tw);
+	for (int y = 0; y < th; ++y)
+	for (int x = 0; x < tw; ++x) {
+		int l = 1;
+		int si = 0;
+		char* celltext = iterf(iterstate);
+		while (celltext[si]) {
+			++si; ++l;
+		}
+//		printf("%s %d\n", celltext, l);
+		if (l > widths[x]) widths[x] = l;
+	}
+	{
+//		for (int i = 0; i < tw; ++i) printf("%d ", widths[i]);
+//		printf("%d\n", tw);
+	}
+	iterreset(iterstate);
+	{
+		int sum = 0;
+		float y0a = ty + 7;
+		float y0b = y0a - 1;
+		float y2a = ty - 6;
+		float y2b = y2a - 1;
+		float y4a = ty - 8 - 11 * th;
+		float y4b = y4a - 1;
+		drawRect(
+			tx + -5.5,
+			y0b,
+			tx + -4.5,
+			y4a, ca);
+		for (int i = 0; i < tw; ++i) {
+			sum += widths[i];
+			drawRect(
+				tx + sum * 5 - 5.5,
+				y2b,
+				tx + sum * 5 - 4.5,
+				y4a, ca);
+		}
+		drawRect(
+			tx + sum * 5 - 5.5,
+			y0b,
+			tx + sum * 5 - 4.5,
+			y2b, ca);
+		int si = 0;
+		while (title[si]) ++si;
+		if (si > sum) sum = si;
+		drawRect(tx - 4.5, ty + 6, tx + sum * 5 - 5.5, ty + 7, ca);
+		drawRect(tx - 4.5, ty - 6, tx + sum * 5 - 5.5, ty - 7, ca);
+		drawRect(
+			tx - 4.5,
+			y4a,
+			tx + sum * 5 - 5.5,
+			y4b, ca);
+	}
+	for (int y = 0; y < th; ++y) {
+	int xo = 0;
+	for (int x = 0; x < tw; ++x) {
+		char* celltext = iterf(iterstate);
+		drawString(celltext, 5.0 * xo + tx, -11.0 * (y + 1) + ty - 2, ca);
+		xo += widths[x];
+	}}
+	free(widths);
+}
+
+void drawFsig(struct fsig_t* fsp, float x, float y, camact_t ca) {
+	ifs_t ifs;
+	ifs.fsigp = fsp;
+	ifs.row = 0; ifs.attr = 0;
+	drawTableIter(x, y, 4, fsp->argc, fsp->name, iterateFsigCell, iterresetFsigCell, &ifs, ca);
 }

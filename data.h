@@ -108,7 +108,7 @@ struct call_t {
 };
 
 struct var_t {
-	u8 type; // 1; in signature: mut(3) / con(4) / val(5)
+	u8 type; // 1
 	float x;
 	float y;
 	u8 vartype;
@@ -132,9 +132,68 @@ union valinst_t {
 
 // function signature
 
-struct fsig_t {
+typedef struct fsigparam_t {
+	u8 rw; // v w r rw
+	char* vartype;
+	char* longname;
+	char* varname;
+} fsigparam_t;
+
+typedef struct fsig_t {
 	u8* name;
-	u8 rettype;
 	u32 argc;
-	struct var_t* argv;
-};
+	struct fsigparam_t* argv;
+} fsig_t;
+
+typedef struct iterFsigState {
+	fsig_t* fsigp;
+	int row;
+	int attr;
+} ifs_t;
+
+char* rwstrs[] = { "v", "w", "r", "rw" };
+char* iterateFsigCell(void* ifsv) {
+	struct iterFsigState* ifs = (struct iterFsigState*) ifsv;
+	char* res;
+	switch (ifs->attr) {
+	case 0:
+		res = rwstrs[ifs->fsigp->argv[ifs->row].rw];
+		break;
+	case 1:
+		res = ifs->fsigp->argv[ifs->row].vartype;
+		break;
+	case 2:
+		res = ifs->fsigp->argv[ifs->row].varname;
+		break;
+	case 3:
+		res = ifs->fsigp->argv[ifs->row].longname;
+		break;
+	}
+	++ifs->attr;
+	if (ifs->attr == 4) {
+		ifs->attr = 0;
+		++ifs->row;
+	}
+	return res;
+}
+void iterresetFsigCell(void* ifsv) {
+	struct iterFsigState* ifsp = (struct iterFsigState*) ifsv;
+	ifsp->row = 0; ifsp->attr = 0;
+}
+
+fsig_t* createFsig(char* fname) {
+	fsig_t* fsp = malloc(sizeof(fsig_t));
+	fsp->name = fname;
+	fsp->argc = 0;
+	fsp->argv = malloc(0);
+	return fsp;
+}
+
+void addFsigRow(fsig_t* fsp, u8 rw, char* vartype, char* varname) {
+	fsp->argv = realloc(fsp->argv, (fsp->argc + 1) * sizeof(fsigparam_t));
+	fsp->argv[fsp->argc].rw = rw;
+	fsp->argv[fsp->argc].vartype = vartype;
+	fsp->argv[fsp->argc].varname = varname;
+	fsp->argv[fsp->argc].longname = "";
+	++fsp->argc;
+}
