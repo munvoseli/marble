@@ -27,7 +27,6 @@ int main(int argc, char** argv) {
 	ca.camx = 0;
 	ca.camy = 0;
 	ca.cams = 50.0;
-//	float camx = 0, camy = 0, cams = 1;
 	fsig_t* fsp = createFsig("hello");
 	addFsigRow(fsp, 2, "s32", "x");
 	addFsigRow(fsp, 1, "s32", "y");

@@ -1,0 +1,17 @@
+julia goals:
+	ruby : dynamic, homoiconicity
+	R : stats
+	Perl : string processing
+	Matlab : linear algebra
+	Rust : memory safety
+ez threads
+ez record rw
+native math notation
+	but without that stupid f^-1 thing
+	and different function application
+	also get mixed fractions outta here
+	also log must take 2 arguments, only ln has 1
+
+not-quite-regex
+a bit more like https://github.com/yoav-lavi/melody
+

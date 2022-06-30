@@ -23,16 +23,25 @@ typedef struct {
 	float y;
 } nodeinfo_t;
 
-struct fsig_node {
+typedef struct fsig_node {
 	nodeinfo_t ni;
 	u32 fsig_index;
-};
+} fsig_node;
 
-struct call_node {
+
+typedef struct call_node {
 	nodeinfo_t ni;
 	u32 fsig_index;
-	u32 string_i0;
-};
+	char** string_arr;
+} call_node;
+
+typedef struct {
+	call_node* np;
+} call_node_istate;
+
+char* iterateCallNode(void* vp) {
+	call_node_istate* sp = (call_node_istate*) vp;
+}
 
 struct for_node {
 	nodeinfo_t ni;
@@ -187,6 +196,13 @@ fsig_t* createFsig(char* fname) {
 	fsp->argc = 0;
 	fsp->argv = malloc(0);
 	return fsp;
+}
+
+void createFsigInarr(int* lp, fsig_t** fsigap, char* fname) {
+	*fsigap = realloc(*fsigap, (*lp + 1) * sizeof(fsig_t));
+	(*fsigap)[*lp].name = fname;
+	(*fsigap)[*lp].argc = 0;
+	(*fsigap)[*lp].argv = malloc(0);
 }
 
 void addFsigRow(fsig_t* fsp, u8 rw, char* vartype, char* varname) {
