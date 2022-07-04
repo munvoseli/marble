@@ -1,7 +1,7 @@
 	segment .data
 	global _start
 	extern printf
-	extern SDL_CreateWindow, SDL_Init, SDL_Quit
+	extern SDL_CreateWindow, SDL_Init, SDL_Quit, SDL_Delay
 _hello:
 	db 'hello',10,0
 _pftext:
@@ -32,11 +32,32 @@ _start:
 	mov r9, 0
 	call SDL_CreateWindow
 
+;;	mov rdi, 5000
+;;	call SDL_Delay
+
 	call SDL_Quit
 
 	mov rdi, _hello
 	mov ax, 0
 	call printf
+
+	mov rax, 2
+	mov [_har], rax
+	mov rax, 3
+	mov [_har+8], rax
+	sub sp, 16
+	mov rax, [_har]
+	mov rbx, [_har+8]
+	imul rax, rbx
+	add al, 0x30
+	mov [_har+16], al
+;;	mov [_har+16], dword 0x35
+
+	mov rax, 0x01
+	mov rdi, 1
+	mov rsi, _har+16
+	mov rdx, 1
+	syscall
 
 ;; exit
 	mov eax, 0x3c
@@ -45,3 +66,5 @@ _start:
 
 
 	segment .bss
+_har:
+	resb 64

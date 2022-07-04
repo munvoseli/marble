@@ -80,8 +80,8 @@ void fillGlyph(unsigned char g, float* points) {
 
 void drawString(const char* str, float x, float y, camact_t ca) {
 	float* vertdata = NULL;
-	ca.camx -= x;
-	ca.camy -= y;
+	ca.camx += x;
+	ca.camy += y;
 	for (int i = 0; str[i] != 0; ++i) {
 		int pan = 6 * getTriCount(str[i]);
 		vertdata = realloc(vertdata, pan * sizeof(float));
@@ -159,12 +159,7 @@ void drawTableIter(float tx, float ty, int tw, int th, char* title,
 		while (celltext[si]) {
 			++si; ++l;
 		}
-//		printf("%s %d\n", celltext, l);
 		if (l > widths[x]) widths[x] = l;
-	}
-	{
-//		for (int i = 0; i < tw; ++i) printf("%d ", widths[i]);
-//		printf("%d\n", tw);
 	}
 	iterreset(iterstate);
 	{
@@ -214,9 +209,8 @@ void drawTableIter(float tx, float ty, int tw, int th, char* title,
 	free(widths);
 }
 
-void drawFsig(struct fsig_t* fsp, float x, float y, camact_t ca) {
-	ifs_t ifs;
-	ifs.fsigp = fsp;
-	ifs.row = 0; ifs.attr = 0;
-	drawTableIter(x, y, 4, fsp->argc, fsp->name, iterateFsigCell, iterresetFsigCell, &ifs, ca);
-}
+
+
+//void drawHex(float x, float y, camact_t) {
+	
+//}

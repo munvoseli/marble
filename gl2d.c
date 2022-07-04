@@ -32,12 +32,6 @@ SDL_GL_SwapWindow(winp);
 SDL_GL_DeleteContext(conp);
 SDL_Quit();
  */
-typedef struct Camera {
-	float x0;
-	float y0;
-	float x2;
-	float y2;
-} Camera;
 
 typedef struct Pavec {
 	GLuint prog;
@@ -148,8 +142,8 @@ Pavec gl_shaderSetupUniform() {
 		"in vec2 aPos;"
 		"uniform vec4 cam;"
 		"void main() {"
-		"gl_Position = vec4((aPos.x - cam.x) / cam.z,"
-		"(aPos.y - cam.y) / cam.w, 0.0, 1.0);"
+		"gl_Position = vec4((aPos.x + cam.x) / cam.z,"
+		"(aPos.y + cam.y) / cam.w, 0.0, 1.0);"
 		"}";
 	const char* frag_src =
 		"#version 150 core\n"

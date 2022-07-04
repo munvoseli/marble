@@ -7,3 +7,6 @@ echo "linking"
 ld -o hello -dynamic-linker /lib64/ld-linux-x86-64.so.2 -lc -lSDL2 hello.o
 echo "executing"
 ./hello
+
+
+# nm -gD /lib/x86_64-linux-gnu/libSDL2.so | grep CreateWindow
