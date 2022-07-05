@@ -19,7 +19,7 @@ void iterresetCallNode(void* vp) {
 	sp->row = 0;
 }
 
-int drawCallNode(node_t* vp, camact_t ca) {
+void drawCallNode(node_t* vp, camact_t ca) {
 	call_node* np = (call_node*) vp;
 	call_node_istate iter;
 	iter.np = np;
@@ -30,6 +30,11 @@ int drawCallNode(node_t* vp, camact_t ca) {
 
 void keybCallNode(node_t* np, SDL_Event* evp) {}
 void initCallNode(node_t* np) {
+	np->ni.tag = Tag_node_call;
 	np->call.fsig_index = 0;
 }
 void freeCallNode(node_t* np) {}
+
+float gethCallNode(node_t* np) {
+	return fsig_list[np->call.fsig_index].argc * 9.0 + 14.0;
+}

@@ -1,17 +1,26 @@
 
 
-int drawStemNode(node_t* np, camact_t ca) {
+void drawStemNode(node_t* np, camact_t ca) {
 	float points[] = {
-		0.0,-15.0,
-		13.0,-7.5,
-		13.0,7.5,
-		0.0,15.0,
-		-13.0,7.5,
-		-13.0,-7.5
+//		0.0,-15.0,
+//		13.0,-7.5,
+//		13.0,7.5,
+//		0.0,15.0,
+//		-13.0,7.5,
+//		-13.0,-7.5
+		 7.0,  7.0,  5.0, 12.0,
+		 0.0, 14.0, -5.0, 12.0,
+		-7.0,  7.0, -5.0,  2.0,
+		 0.0,  0.0,  5.0,  2.0
 	};
 	drawWithCamact(
 		sizeof(points) / sizeof(points[0]), points,
-		GL_TRIANGLE_STRIP, 0.0, 0.0, 0.0, ca);
+		GL_TRIANGLE_FAN, 0.3, 0.4, 0.4, ca);
+//	for (int i = 0; i < sizeof(points) / sizeof(points[0]); ++i)
+//		points[i] = points[i] * 7 / 8;
+//	drawWithCamact(
+//		sizeof(points) / sizeof(points[0]), points,
+//		GL_TRIANGLE_FAN, 1.0, 1.0, 1.0, ca);
 }
 
 void keybStemNode(node_t* np, SDL_Event* evp) {
@@ -22,11 +31,15 @@ void keybStemNode(node_t* np, SDL_Event* evp) {
 }
 
 void initStemNode(node_t* np) {
-	np->ni.tag = 0;
+	np->ni.tag = Tag_node_stem;
 	np->stem.text = NULL;
 	np->stem.tlen = 0;
 }
 
 void freeStemNode(node_t* np) {
 	free(np->stem.text);
+}
+
+float gethStemNode(node_t* np) {
+	return 14.0;
 }

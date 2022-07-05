@@ -148,6 +148,7 @@ void drawTable(float tx, float ty, int tw, int th, char* title, char* boxes, cam
 void drawTableIter(float tx, float ty, int tw, int th, char* title,
 		char* (*iterf)(void*), void (*iterreset)(void*), void* iterstate,
 		camact_t ca) {
+	ca.camy += 9 * th + 14.0;
 	drawString(title, tx, ty, ca);
 	int* widths = malloc(sizeof(int) * tw);
 	memset(widths, 0, sizeof(int) * tw);

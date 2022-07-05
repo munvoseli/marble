@@ -1,3 +1,9 @@
+enum {
+	Tag_node_stem,
+	Tag_node_fsig,
+	Tag_node_call
+};
+
 typedef struct {
 	u8 tag; // function signature (node), call, for, if, scope...
 	u32 prev_node;

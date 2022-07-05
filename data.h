@@ -28,12 +28,22 @@ typedef struct fsig_t {
 	struct fsigparam_t* argv;
 } fsig_t;
 
+fsig_t fsig_list[32];
+int fsigc = 0;
+
 fsig_t* createFsig(char* fname) {
 	fsig_t* fsp = malloc(sizeof(fsig_t));
 	fsp->name = fname;
 	fsp->argc = 0;
 	fsp->argv = malloc(0);
 	return fsp;
+}
+
+fsig_t* createFsigGlobal(char* fname) {
+	fsig_list[fsigc].name = fname;
+	fsig_list[fsigc].argc = 0;
+	fsig_list[fsigc].argv = malloc(0);
+	return &fsig_list[fsigc];
 }
 
 void createFsigInarr(int* lp, fsig_t** fsigap, char* fname) {
