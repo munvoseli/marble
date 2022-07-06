@@ -14,6 +14,8 @@ typedef struct {
 
 typedef struct call_node { nodeinfo_t ni;
 	u32 fsig_index;
+	int srow;
+	int scol;
 	char** string_arr;
 } call_node;
 
@@ -24,6 +26,8 @@ typedef struct stem_node { nodeinfo_t ni;
 
 typedef struct fsig_node { nodeinfo_t ni;
 	u32 fsig_index;
+	int srow;
+	int scol;
 } fsig_node;
 
 typedef struct for_node { nodeinfo_t ni;
@@ -68,3 +72,4 @@ void freeCallNode(node_t* np);
 float gethStemNode(node_t* np);
 float gethFsigNode(node_t* np);
 float gethCallNode(node_t* np);
+

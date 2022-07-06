@@ -107,12 +107,12 @@ void drawRect(float x0, float y0, float x2, float y2, camact_t ca) {
 	drawWithCamact(8, vertdata, GL_TRIANGLE_STRIP, 0.8, 0.4, 0.0, ca);
 }
 
-void drawTableIter(float tx, float ty, int tw, int th, char* title,
+void drawTableIter(int hix, int hiy, int tw, int th, char* title,
 		char* (*iterf)(void*), void (*iterreset)(void*), void* iterstate,
 		camact_t ca) {
 	ca.camy += 11.0 * th + 9.0;
 	drawString(title, 4.0, 0, ca);
-	int* widths = malloc(sizeof(int) * tw);
+	int* widths = malloc(sizeof(int) * (tw + 1));
 		memset(widths, 0, sizeof(int) * tw);
 		for (int y = 0; y < th; ++y)
 		for (int x = 0; x < tw; ++x) {
@@ -150,6 +150,7 @@ void drawTableIter(float tx, float ty, int tw, int th, char* title,
 			x2 += w * 5.0;
 			x2 += 2.0;
 		}
+		xstr[tw] = x2 + 4.0;
 		// bar to left of title
 		drawRect(x0a, y0b, x0b, y2a, ca);
 		// bar to right of title
@@ -162,6 +163,13 @@ void drawTableIter(float tx, float ty, int tw, int th, char* title,
 		drawRect(x0a,  -6, (x2 > x2atop ? x2 : x2atop) + 1.0,  -7, ca);
 		// bottom bar
 		drawRect(x0a, y4a, x2 + 1.0, y4b, ca);
+		if (hix != -1) {
+			drawRect(
+				xstr[hix] - 2.0,     y2b - 11.0 * hiy -  1.0,
+				xstr[hix + 1] - 5.0, y2b - 11.0 * hiy - 11.0,
+				ca
+			);
+		}
 	}
 	{
 		for (int y = 0; y < th; ++y) {

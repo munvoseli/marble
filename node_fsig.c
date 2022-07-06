@@ -46,14 +46,26 @@ void drawFsig(struct fsig_t* fsp, float x, float y, camact_t ca) {
 void drawFsigNode(node_t* v, camact_t ca) {
 	fsig_node* np = (fsig_node*) v;
 	fsig_t* fsp = &fsig_list[np->fsig_index];
-	drawFsig(fsp, 0, 0, ca);
+	ifs_t ifs;
+	ifs.fsigp = fsp;
+	ifs.row = 0; ifs.attr = 0;
+	drawTableIter(v->fsig.scol, v->fsig.srow, 4, fsp->argc, fsp->name, iterateFsigCell, iterresetFsigCell, &ifs, ca);
 }
 
-void keybFsigNode(node_t* v, SDL_Event* evp) {}
+void keybFsigNode(node_t* v, SDL_Event* evp) {
+	switch (evp->key.keysym.sym) {
+	case 'j': ++v->fsig.srow; break;
+	case 'k': --v->fsig.srow; break;
+	case 'l': ++v->fsig.scol; break;
+	case 'h': --v->fsig.scol; break;
+	}
+}
 void freeFsigNode(node_t* v) {}
 void initFsigNode(node_t* v) {
 	v->ni.tag = Tag_node_fsig;
 	v->fsig.fsig_index = 0;
+	v->fsig.srow = 0;
+	v->fsig.scol = 0;
 }
 
 float gethFsigNode(node_t* np) {
