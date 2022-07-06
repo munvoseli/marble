@@ -10,7 +10,7 @@ int getTriCount(unsigned char g) {
 	return c;
 }
 
-void fillGlyph(unsigned char g, float* points) {
+void fillGlyph(unsigned char g, float* points) { // 4.0 x 8.0
 	int i = 0;
 	static const float gly_0[] = {};
 	static const float gly_1[] = {
@@ -107,106 +107,69 @@ void drawRect(float x0, float y0, float x2, float y2, camact_t ca) {
 	drawWithCamact(8, vertdata, GL_TRIANGLE_STRIP, 0.1, 0.2, 0.2, ca);
 }
 
-
-void drawTable(float tx, float ty, int tw, int th, char* title, char* boxes, camact_t ca) {
-	drawString(title, tx, ty, ca);
-	int si = 0;
-	int* widths = malloc(sizeof(int) * tw);
-	memset(widths, 0, sizeof(int) * tw);
-	for (int y = 0; y < th; ++y)
-	for (int x = 0; x < tw; ++x) {
-		int l = 1;
-		while (boxes[si]) {
-			++si; ++l;
-		}
-		if (l > widths[x]) widths[x] = l;
-		++si;
-	}
-	{
-		int sum = tw - 1;
-		for (int i = 0; i < tw; ++i) {
-			if (i != tw - 1)
-				drawRect(tx + sum * 5, ty - 7, tx + sum * 5 + 1, ty - 7 * (th + 1) - 5, ca);
-			sum += widths[i];
-		}
-		int si = 0;
-		while (title[si]) ++si;
-		if (si > sum) sum = si;
-		drawRect(tx - 3, ty - 6, tx + si * 5 - 2, ty - 7, ca);
-	}
-	si = 0;
-	for (int y = 0; y < th; ++y) {
-	int xo = 0;
-	for (int x = 0; x < tw; ++x) {
-		drawString(&boxes[si], 5.0 * xo + tx, -11.0 * (y + 1) + ty - 2, ca);
-		xo += widths[x];
-		while (boxes[si]) ++si; ++si;
-	}}
-	free(widths);
-}
-
 void drawTableIter(float tx, float ty, int tw, int th, char* title,
 		char* (*iterf)(void*), void (*iterreset)(void*), void* iterstate,
 		camact_t ca) {
-	ca.camy += 9 * th + 14.0;
-	drawString(title, tx, ty, ca);
+	ca.camy += 9.0 * th + 14.0;
+	drawString(title, 4.0, 0, ca);
 	int* widths = malloc(sizeof(int) * tw);
-	memset(widths, 0, sizeof(int) * tw);
-	for (int y = 0; y < th; ++y)
-	for (int x = 0; x < tw; ++x) {
-		int l = 1;
+		memset(widths, 0, sizeof(int) * tw);
+		for (int y = 0; y < th; ++y)
+		for (int x = 0; x < tw; ++x) {
+		int l = 0;
 		int si = 0;
 		char* celltext = iterf(iterstate);
 		while (celltext[si]) {
 			++si; ++l;
 		}
 		if (l > widths[x]) widths[x] = l;
-	}
+		}
+	int bodycc = 0;
+		for (int i = 0; i < tw; ++i)
+		bodycc += widths[i];
+	int titlecc = 0;
+		for (; title[titlecc]; ++titlecc);
+	float* xstr = (float*) widths; // assumes that sizeof f32 == s32
 	iterreset(iterstate);
 	{
-		int sum = 0;
-		float y0a = ty + 7;
+		float x0a = 0;
+		float x0b = x0a + 1.0;
+		float x2 = x0a;
+		float x2atop = x0a + titlecc * 5.0 + 2.0;
+		float y0a = 7;
 		float y0b = y0a - 1;
-		float y2a = ty - 6;
+		float y2a = -6;
 		float y2b = y2a - 1;
-		float y4a = ty - 8 - 11 * th;
+		float y4a = -8 - 11 * th;
 		float y4b = y4a - 1;
-		drawRect(
-			tx + -5.5,
-			y0b,
-			tx + -4.5,
-			y4a, ca);
+		// bars to left of cols
 		for (int i = 0; i < tw; ++i) {
-			sum += widths[i];
-			drawRect(
-				tx + sum * 5 - 5.5,
-				y2b,
-				tx + sum * 5 - 4.5,
-				y4a, ca);
+			int w = widths[i];
+			xstr[i] = x2 + 4.0;
+			drawRect(x2, y2b, x2 + 1.0, y4a, ca);
+			x2 += w * 5.0;
+			x2 += 2.0;
 		}
-		drawRect(
-			tx + sum * 5 - 5.5,
-			y0b,
-			tx + sum * 5 - 4.5,
-			y2b, ca);
-		int si = 0;
-		while (title[si]) ++si;
-		if (si > sum) sum = si;
-		drawRect(tx - 4.5, ty + 6, tx + sum * 5 - 5.5, ty + 7, ca);
-		drawRect(tx - 4.5, ty - 6, tx + sum * 5 - 5.5, ty - 7, ca);
-		drawRect(
-			tx - 4.5,
-			y4a,
-			tx + sum * 5 - 5.5,
-			y4b, ca);
+		// bar to left of title
+		drawRect(x0a, y0b, x0b, y2a, ca);
+		// bar to right of title
+		drawRect(x2atop, y0b, x2atop + 1.0, y2b, ca);
+		// bar to right of cols
+		drawRect(x2, y2b, x2 + 1.0, y4b, ca);
+		// top bar
+		drawRect(x0a,   6, x2atop + 1.0,   7, ca);
+		// middle bar
+		drawRect(x0a,  -6, (x2 > x2atop ? x2 : x2atop) + 1.0,  -7, ca);
+		// bottom bar
+		drawRect(x0a, y4a, x2 + 1.0, y4b, ca);
 	}
-	for (int y = 0; y < th; ++y) {
-	int xo = 0;
-	for (int x = 0; x < tw; ++x) {
+	{
+		for (int y = 0; y < th; ++y) {
+		for (int x = 0; x < tw; ++x) {
 		char* celltext = iterf(iterstate);
-		drawString(celltext, 5.0 * xo + tx, -11.0 * (y + 1) + ty - 2, ca);
-		xo += widths[x];
-	}}
+		drawString(celltext, xstr[x], -11.0 * (y + 1) - 2, ca);
+		}}
+	}
 	free(widths);
 }
 

@@ -32,9 +32,14 @@ void keybCallNode(node_t* np, SDL_Event* evp) {}
 void initCallNode(node_t* np) {
 	np->ni.tag = Tag_node_call;
 	np->call.fsig_index = 0;
+	int argc = fsig_list[np->call.fsig_index].argc;
+	np->call.string_arr = malloc(sizeof(void*) * argc);
+	for (int i = 0; i < argc; ++i) {
+		np->call.string_arr[i] = "h";
+	}
 }
 void freeCallNode(node_t* np) {}
 
 float gethCallNode(node_t* np) {
-	return fsig_list[np->call.fsig_index].argc * 9.0 + 14.0;
+	return fsig_list[np->call.fsig_index].argc * 10.0 + 20.0;
 }

@@ -118,6 +118,10 @@ int main(int argc, char** argv) {
 					selnode = nodes[selnode].ni.next_node;
 					//ca.camy += 0;
 				}
+				else {
+					(af_keyb[nodes[selnode].ni.tag])
+					(&nodes[selnode], &event);
+				}
 			}
 		}
 		{

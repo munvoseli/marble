@@ -23,11 +23,23 @@ void drawStemNode(node_t* np, camact_t ca) {
 //		GL_TRIANGLE_FAN, 1.0, 1.0, 1.0, ca);
 }
 
+void freeStemNode(node_t* np) {
+	free(np->stem.text);
+}
+
 void keybStemNode(node_t* np, SDL_Event* evp) {
 	char c = (char) evp->key.keysym.sym;
-	np->stem.text = realloc(np->stem.text, np->stem.tlen + 1);
-	np->stem.text[np->stem.tlen] = c;
-	++np->stem.tlen;
+	if (c == 'f') {
+		freeStemNode(np);
+		initFsigNode(np);
+	}
+	else if (c == 'c') {
+		freeStemNode(np);
+		initCallNode(np);
+	}
+//	np->stem.text = realloc(np->stem.text, np->stem.tlen + 1);
+//	np->stem.text[np->stem.tlen] = c;
+//	++np->stem.tlen;
 }
 
 void initStemNode(node_t* np) {
@@ -36,9 +48,6 @@ void initStemNode(node_t* np) {
 	np->stem.tlen = 0;
 }
 
-void freeStemNode(node_t* np) {
-	free(np->stem.text);
-}
 
 float gethStemNode(node_t* np) {
 	return 14.0;
