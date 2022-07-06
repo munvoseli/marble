@@ -89,7 +89,7 @@ void drawString(const char* str, float x, float y, camact_t ca) {
 		for (int j = 0; j < pan; j += 2)
 			vertdata[j] += 5 * i;
 		drawWithCamact(pan, vertdata, GL_TRIANGLES,
-				0.1, 0.2, 0.2, ca);
+				1.0, 0.8, 0.0, ca);
 	}
 	free(vertdata);
 }
@@ -104,13 +104,13 @@ void drawRect(float x0, float y0, float x2, float y2, camact_t ca) {
 	vertdata[5] = y2;
 	vertdata[6] = x2;
 	vertdata[7] = y2;
-	drawWithCamact(8, vertdata, GL_TRIANGLE_STRIP, 0.1, 0.2, 0.2, ca);
+	drawWithCamact(8, vertdata, GL_TRIANGLE_STRIP, 0.8, 0.4, 0.0, ca);
 }
 
 void drawTableIter(float tx, float ty, int tw, int th, char* title,
 		char* (*iterf)(void*), void (*iterreset)(void*), void* iterstate,
 		camact_t ca) {
-	ca.camy += 9.0 * th + 14.0;
+	ca.camy += 11.0 * th + 9.0;
 	drawString(title, 4.0, 0, ca);
 	int* widths = malloc(sizeof(int) * tw);
 		memset(widths, 0, sizeof(int) * tw);
@@ -171,6 +171,9 @@ void drawTableIter(float tx, float ty, int tw, int th, char* title,
 		}}
 	}
 	free(widths);
+}
+float gethTable(int th) {
+	return 11.0 * th + 16.0;
 }
 
 

@@ -43,7 +43,8 @@ fsig_t* createFsigGlobal(char* fname) {
 	fsig_list[fsigc].name = fname;
 	fsig_list[fsigc].argc = 0;
 	fsig_list[fsigc].argv = malloc(0);
-	return &fsig_list[fsigc];
+	++fsigc;
+	return &fsig_list[fsigc - 1];
 }
 
 void createFsigInarr(int* lp, fsig_t** fsigap, char* fname) {

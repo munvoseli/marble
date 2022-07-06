@@ -57,5 +57,5 @@ void initFsigNode(node_t* v) {
 }
 
 float gethFsigNode(node_t* np) {
-	return fsig_list[np->fsig.fsig_index].argc * 10.0 + 20.0;
+	return gethTable(fsig_list[np->fsig.fsig_index].argc);
 }
