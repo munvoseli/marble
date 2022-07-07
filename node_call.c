@@ -8,7 +8,7 @@ typedef struct {
 
 char* iterateCallNode(void* vp) {
 	call_node_istate* sp = (call_node_istate*) vp;
-	char* res = sp->np->string_arr[sp->row];
+	char* res = &sp->np->string_arr[sp->row * 8];
 	++sp->row;
 	return res;
 }
@@ -25,27 +25,32 @@ void drawCallNode(node_t* vp, camact_t ca) {
 	iter.np = np;
 	iterresetCallNode(&iter);
 	drawTableIter(np->scol, np->srow,
-		1, fsig_list[np->fsig_index].argc, "call",
+		1, fsig_list[np->fsig_index].argc,
+		fsig_list[np->fsig_index].name,
 		iterateCallNode, iterresetCallNode, &iter, ca);
 }
 
 void callNodeSetFsig(node_t* np, int fi) {
 	int argc = fsig_list[fi].argc;
-	np->call.string_arr = realloc(np->call.string_arr, sizeof(void*) * argc);
+	np->call.string_arr = realloc(np->call.string_arr, 8 * argc);
 	np->call.fsig_index = fi;
-	for (int i = 0; i < argc; ++i) {
-		np->call.string_arr[i] = "h";
+	for (int i = 0; i < argc * 8; i += 8) {
+		np->call.string_arr[i    ] = 'h';
+		np->call.string_arr[i + 1] = 0;
 	}
 }
 
 void keybCallNode(node_t* np, SDL_Event* evp) {
 	char c = evp->key.keysym.sym;
+	if (evp->key.keysym.sym == SDLK_ESCAPE) return;
 	if (c == 'n') {
 		callNodeSetFsig(np, np->call.fsig_index + 1);
 	} else if (c == 'j') {
 		np->call.srow++;
 	} else if (c == 'k') {
 		np->call.srow--;
+	} else {
+		np->call.string_arr[np->call.srow * 8] = c;
 	}
 }
 

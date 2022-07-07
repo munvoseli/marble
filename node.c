@@ -13,10 +13,10 @@ typedef struct {
 } nodeinfo_t;
 
 typedef struct call_node { nodeinfo_t ni;
-	u32 fsig_index;
+	int fsig_index;
 	int srow;
 	int scol;
-	char** string_arr;
+	char* string_arr;
 } call_node;
 
 typedef struct stem_node { nodeinfo_t ni;
@@ -25,7 +25,7 @@ typedef struct stem_node { nodeinfo_t ni;
 } stem_node;
 
 typedef struct fsig_node { nodeinfo_t ni;
-	u32 fsig_index;
+	int fsig_index;
 	int srow;
 	int scol;
 } fsig_node;

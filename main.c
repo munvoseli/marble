@@ -11,6 +11,7 @@ typedef unsigned long u64;
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h> // finally caved and used this
 
 
 
@@ -44,6 +45,65 @@ float (*af_geth[])(node_t*) = {
 	gethStemNode, gethFsigNode, gethCallNode
 };
 
+// needs to be updated for multiple-character names
+string_list listVariables(int i0, node_t* nodes) {
+	string_list sl = newStringList();
+	for (int i = i0; i >= 0; i = nodes[i].ni.next_node) {
+		printf("h %d\n", i);
+		if (nodes[i].ni.tag != Tag_node_call) continue;
+		for (int j = 0;
+			j < fsig_list[nodes[i].call.fsig_index].argc; ++j
+		) {
+			int fi = nodes[i].call.fsig_index;
+			if (fsig_list[fi].argv[j].rw == 4) continue;
+			unnSzToList(&sl, &(nodes[i].call.string_arr[j * 8]));
+		}
+	}
+	return sl;
+}
+
+// needs to be updated for multiple-character names
+void compileFunc(int i0, node_t* nodes) {
+	int psiz = sizeof(void*);
+	string_list vars = listVariables(i0, nodes);
+	int bytespace = vars.c * psiz;
+	FILE* fp = fopen("out.asm", "w");
+	fprintf(fp, "segment .data\nglobal _start\nsegment .text\n_start:\n");
+	for (int i = i0; i >= 0; i = nodes[i].ni.next_node) {
+		u32 fi = nodes[i].call.fsig_index;
+		int c = fsig_list[fi].argc;
+		int* offsets = malloc(c * sizeof(int));
+		for (int j = 0; j < c; ++j) {
+			if (fsig_list[fi].argv[j].rw == 4) continue;
+			char* vname = &nodes[i].call.string_arr[j * 8];
+			offsets[j] = findInStringList(&vars, vname) * 8;
+		}
+		printf("%d\n", fi);
+		if (fi == 1) { // set to const
+			fprintf(
+				fp, "mov [fmem+%d], dword %d\n\n",
+				offsets[0],
+				strtol(&nodes[i].call.string_arr[8], NULL, 16)
+			);
+		} else if (fi == 2) { // add
+			fprintf(fp, "mov rcx, [fmem+%d]\n", offsets[1]);
+			fprintf(fp, "mov rdx, [fmem+%d]\n", offsets[2]);
+			fprintf(fp, "add rcx, rdx\n");
+			fprintf(fp, "mov [fmem+%d], rdx\n\n", offsets[0]);
+		} else if (fi == 3) { // print
+			fprintf(fp, "mov rcx, [fmem+%d]\n", offsets[0]);
+			fprintf(fp, "mov rax, 1\n");
+			fprintf(fp, "mov rdi, 1\n");
+			fprintf(fp, "mov rdx, 1\n");
+			fprintf(fp, "mov rsi, fmem+%d\n", offsets[0]);
+			fprintf(fp, "syscall\n\n");
+		}
+		free(offsets);
+	}
+	fprintf(fp, "mov eax, 0x3c\nmov edi, 0\nsyscall\n");
+	fprintf(fp, "segment .bss\nfmem:\nresb %d\n", bytespace);
+	fclose(fp);
+}
 
 #define HandleEvent() handle_event(&event, nodes, &ca, &selnode, &nodec, &focus)
 char handle_event(
@@ -59,7 +119,7 @@ char handle_event(
 		cap->camy += 0.5 * evp->wheel.y;
 		break;
 	case SDL_KEYDOWN:
-		if (evp->key.keysym.sym == SDLK_ESCAPE) {
+		if (evp->key.keysym.sym == SDLK_ESCAPE && *focusp == 1) {
 			*focusp = 0;
 			break;
 		}
@@ -97,6 +157,9 @@ char handle_event(
 			*snp = nodes[*snp].ni.next_node;
 			//ca.camy += 0;
 		}
+		else if (evp->key.keysym.sym == 'l') {
+			compileFunc(0, nodes);
+		}
 		else {
 			(af_keyb[nodes[*snp].ni.tag])
 			(&nodes[*snp], evp);
@@ -130,7 +193,7 @@ int main(int argc, char** argv) {
 	{
 		fsig_t* fsp = createFsigGlobal("set");
 		addFsigRow(fsp, 1, "u64", "x");
-		addFsigRow(fsp, 2, "u64", "c");
+		addFsigRow(fsp, 4, "u64", "c");
 	}
 	{
 		fsig_t* fsp = createFsigGlobal("add");

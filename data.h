@@ -62,3 +62,43 @@ void addFsigRow(fsig_t* fsp, u8 rw, char* vartype, char* varname) {
 	fsp->argv[fsp->argc].longname = "";
 	++fsp->argc;
 }
+
+
+
+
+
+
+
+
+
+
+typedef struct {
+	int c;
+	char** strings;
+} string_list;
+
+string_list newStringList() {
+	string_list h;
+	h.c = 0;
+	h.strings = malloc(0);
+	return h;
+}
+
+void appSzToList(string_list* slp, char* str) {
+	int c = strlen(str);
+	slp->strings = realloc(slp->strings, (slp->c + 1) * sizeof(void*));
+	slp->strings[slp->c] = malloc(c + 1);
+	strncpy(slp->strings[slp->c], str, c + 1);
+	++slp->c;
+}
+
+int findInStringList(string_list* slp, char* str) {
+	for (int i = 0; i < slp->c; ++i)
+		if (strcmp(slp->strings[i], str) == 0) return i;
+	return -1;
+}
+
+void unnSzToList(string_list* slp, char* str) {
+	if (findInStringList(slp, str) == -1)
+		appSzToList(slp, str);
+}
