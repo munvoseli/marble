@@ -25,14 +25,14 @@ void drawCallNode(node_t* vp, camact_t ca) {
 	iter.np = np;
 	iterresetCallNode(&iter);
 	drawTableIter(np->scol, np->srow,
-		1, fsig_list[np->fsig_index].argc,
+		1, fsig_list[np->fsig_index].args->c,
 		fsig_list[np->fsig_index].name,
 		iterateCallNode, iterresetCallNode, &iter, ca);
 }
 
 void callNodeSetFsig(node_t* np, int fi) {
-	int argc = fsig_list[fi].argc;
-	np->call.string_arr = realloc(np->call.string_arr, 8 * argc);
+	int argc = fsig_list[fi].args->c;
+	np->call.string_arr = (char*) realloc(np->call.string_arr, 8 * argc);
 	np->call.fsig_index = fi;
 	for (int i = 0; i < argc * 8; i += 8) {
 		np->call.string_arr[i    ] = 'h';
@@ -64,5 +64,5 @@ void initCallNode(node_t* np) {
 void freeCallNode(node_t* np) {}
 
 float gethCallNode(node_t* np) {
-	return gethTable(fsig_list[np->call.fsig_index].argc);
+	return gethTable(fsig_list[np->call.fsig_index].args->c);
 }

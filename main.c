@@ -4,17 +4,22 @@
 // nes: 2**16 bytes
 // 4 kbby: 2**12 bytes
 
-typedef unsigned char u8;
-typedef unsigned short u16;
-typedef unsigned int u32;
-typedef unsigned long u64;
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h> // finally caved and used this
 
+typedef unsigned char u8;
+typedef unsigned short u16;
+typedef unsigned int u32;
+typedef unsigned long u64;
+typedef char s8;
+typedef short s16;
+typedef int s32;
+typedef long s64;
 
 
+#include "vector.c"
 #include "gl2d.c"
 #include "draw.c"
 
@@ -52,14 +57,28 @@ string_list listVariables(int i0, node_t* nodes) {
 		printf("h %d\n", i);
 		if (nodes[i].ni.tag != Tag_node_call) continue;
 		for (int j = 0;
-			j < fsig_list[nodes[i].call.fsig_index].argc; ++j
+			j < fsig_list[nodes[i].call.fsig_index].args->c; ++j
 		) {
 			int fi = nodes[i].call.fsig_index;
-			if (fsig_list[fi].argv[j].rw == 4) continue;
+			if (VikGett(fsig_list[fi].args, j, fsigparam_t)->rw
+				== 4) continue;
 			unnSzToList(&sl, &(nodes[i].call.string_arr[j * 8]));
 		}
 	}
 	return sl;
+}
+
+void compileBlock(
+	int i0, node_t* nodes, // nodes[i0] should be block info node
+	viktor vars // <>var_data
+) {
+	int parvarc = vars->c;
+	int psiz = sizeof(void*);
+	for (int i = i0; i >= 0; i = nodes[i].ni.next_node) {
+		if (nodes[i].tag != Tag_node_call)
+			printf("Parse error: only call allowed for now\n");
+		u32 fi = nodes[i].call.fsig_index;
+	}
 }
 
 // needs to be updated for multiple-character names
@@ -71,10 +90,11 @@ void compileFunc(int i0, node_t* nodes) {
 	fprintf(fp, "segment .data\nglobal _start\nsegment .text\n_start:\n");
 	for (int i = i0; i >= 0; i = nodes[i].ni.next_node) {
 		u32 fi = nodes[i].call.fsig_index;
-		int c = fsig_list[fi].argc;
-		int* offsets = malloc(c * sizeof(int));
+		int c = fsig_list[fi].args->c;
+		int* offsets = (int*) malloc(c * sizeof(int));
 		for (int j = 0; j < c; ++j) {
-			if (fsig_list[fi].argv[j].rw == 4) continue;
+			if (VikGett(fsig_list[fi].args, j, fsigparam_t)->rw
+				== 4) continue;
 			char* vname = &nodes[i].call.string_arr[j * 8];
 			offsets[j] = findInStringList(&vars, vname) * 8;
 		}
@@ -211,8 +231,6 @@ int main(int argc, char** argv) {
 	int nodec = 1;
 	nodes[0].ni.prev_node = -1;
 	nodes[0].ni.next_node = -1;
-	nodes[0].ni.x = 0;
-	nodes[0].ni.y = 0;
 	initStemNode(&nodes[0]);
 	for (;;) {
 		SDL_Event event;

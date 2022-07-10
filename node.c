@@ -1,15 +1,14 @@
 enum {
 	Tag_node_stem,
 	Tag_node_fsig,
-	Tag_node_call
+	Tag_node_call,
+	Tag_node_bi
 };
 
 typedef struct {
 	u8 tag; // function signature (node), call, for, if, scope...
 	u32 prev_node;
 	u32 next_node;
-	float x;
-	float y;
 } nodeinfo_t;
 
 typedef struct call_node { nodeinfo_t ni;
@@ -29,6 +28,13 @@ typedef struct fsig_node { nodeinfo_t ni;
 	int srow;
 	int scol;
 } fsig_node;
+
+typedef struct bi_node { nodeinfo_t ni;
+	struct bi_node* parentBlock; // NULL if lestmost
+	fsig_node* fsig; // NULL if not leftmost
+	int firstNode;
+	viktor vars; // <>var_data
+} bi_node;
 
 typedef struct for_node { nodeinfo_t ni;
 	char type[16];
@@ -56,6 +62,7 @@ typedef union { nodeinfo_t ni;
 	struct if_node ifn;
 	struct scope_node scope;
 } node_t;
+
 
 void drawStemNode(node_t* np, camact_t ca);
 void drawFsigNode(node_t* np, camact_t ca);

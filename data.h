@@ -1,3 +1,10 @@
+
+
+
+
+
+
+
 // v0t xry sim / vtxs
 
 // favorite super powers:
@@ -23,26 +30,23 @@ typedef struct fsigparam_t {
 } fsigparam_t;
 
 typedef struct fsig_t {
-	u8* name;
-	u32 argc;
-	struct fsigparam_t* argv;
+	s8* name;
+	viktor args; //<>fsigparam_t
 } fsig_t;
 
 fsig_t fsig_list[32];
 int fsigc = 0;
 
 fsig_t* createFsig(char* fname) {
-	fsig_t* fsp = malloc(sizeof(fsig_t));
+	fsig_t* fsp = (fsig_t*) malloc(sizeof(fsig_t));
 	fsp->name = fname;
-	fsp->argc = 0;
-	fsp->argv = malloc(0);
+	fsp->args = VikNew(fsigparam_t);
 	return fsp;
 }
 
 fsig_t* createFsigGlobal(char* fname) {
 	fsig_list[fsigc].name = fname;
-	fsig_list[fsigc].argc = 0;
-	fsig_list[fsigc].argv = malloc(0);
+	fsig_list[fsigc].args = VikNew(fsigparam_t);
 	++fsigc;
 	return &fsig_list[fsigc - 1];
 }
@@ -50,17 +54,15 @@ fsig_t* createFsigGlobal(char* fname) {
 void createFsigInarr(int* lp, fsig_t** fsigap, char* fname) {
 	*fsigap = realloc(*fsigap, (*lp + 1) * sizeof(fsig_t));
 	(*fsigap)[*lp].name = fname;
-	(*fsigap)[*lp].argc = 0;
-	(*fsigap)[*lp].argv = malloc(0);
+	(*fsigap)[*lp].args = VikNew(fsigparam_t);
 }
 
 void addFsigRow(fsig_t* fsp, u8 rw, char* vartype, char* varname) {
-	fsp->argv = realloc(fsp->argv, (fsp->argc + 1) * sizeof(fsigparam_t));
-	fsp->argv[fsp->argc].rw = rw;
-	fsp->argv[fsp->argc].vartype = vartype;
-	fsp->argv[fsp->argc].varname = varname;
-	fsp->argv[fsp->argc].longname = "";
-	++fsp->argc;
+	fsigparam_t* fspp = VikExp(fsp->args);
+	fspp->rw = rw;
+	fspp->vartype = vartype;
+	fspp->varname = varname;
+	fspp->longname = "";
 }
 
 
@@ -102,3 +104,40 @@ void unnSzToList(string_list* slp, char* str) {
 	if (findInStringList(slp, str) == -1)
 		appSzToList(slp, str);
 }
+
+void popStringList(string_list* slp) {
+	--slp->c;
+	free(slp->strings[slp->c]);
+	slp->strings = realloc(slp->strings, slp->c * sizeof(void*));
+}
+
+
+enum {
+	Callinp_var,
+	Callinp_const
+};
+
+typedef struct {
+	u8 tag;
+	char* name;
+	u8 bytesize;
+} var_data;
+
+typedef struct {
+	u8 tag;
+	char* text;
+} const_data;
+
+typedef union {
+	u8 tag;
+	var_data var;
+	const_data con;
+} call_input;
+
+
+
+
+
+
+
+
