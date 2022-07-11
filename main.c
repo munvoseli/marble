@@ -226,8 +226,8 @@ char handle_event(
 			//compileFunc(0, nodes);
 		}
 		else {
-			(af_keyb[nodes[*snp].ni.tag])
-			(&nodes[*snp], evp);
+			//(af_keyb[nodes[*snp].ni.tag])
+			//(&nodes[*snp], evp);
 		}
 		break;
 	}

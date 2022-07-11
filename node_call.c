@@ -19,7 +19,7 @@ void iterresetCallNode(void* vp) {
 	sp->row = 0;
 }
 
-void drawCallNode(node_t* vp, camact_t ca) {
+void drawCallNode(node_t* np, camact_t ca) {
 	call_node* np = (call_node*) vp;
 	call_node_istate iter;
 	iter.np = np;

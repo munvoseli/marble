@@ -112,7 +112,7 @@ void drawViktorHex(viktor v, float x, float y, camact_t ca) {
 		};
 		int compc = tric * 6;
 		for (int j = 0; j < compc; j += 2)
-			vertdata[j] += 5 * i;
+			vertdata[j] += 4 * i;
 		drawWithCamact(compc, vertdata, GL_TRIANGLES,
 			1.0, 0.8, 0.0, ca);
 	}

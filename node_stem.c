@@ -37,6 +37,11 @@ void keybStemNode(node_t* np, SDL_Event* evp) {
 		freeStemNode(np);
 		initCallNode(np);
 	}
+	else if (c == 'b') {
+		freeStemNode(np);
+		printf("block info node\n");
+		initBiNode(np);
+	}
 //	np->stem.text = realloc(np->stem.text, np->stem.tlen + 1);
 //	np->stem.text[np->stem.tlen] = c;
 //	++np->stem.tlen;
