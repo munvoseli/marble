@@ -114,23 +114,28 @@ void popStringList(string_list* slp) {
 
 enum {
 	Callinp_var,
-	Callinp_const
+	Callinp_const,
+	Callinp_none
 };
 
 typedef struct {
 	u8 tag;
-	char* name;
-	u8 bytesize;
+	viktor name; // <>u8
 } var_data;
 
 typedef struct {
 	u8 tag;
-	char* text;
+	viktor text; // <>u8
 } const_data;
+
+typedef struct {
+	u8 tag;
+	u32 id; // index into array of var_data
+} varvar_data;
 
 typedef union {
 	u8 tag;
-	var_data var;
+	varvar_data var;
 	const_data con;
 } call_input;
 

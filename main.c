@@ -30,26 +30,28 @@ typedef long s64;
 #include "node_stem.c"
 #include "node_fsig.c"
 #include "node_call.c"
+#include "node_bi.c"
 
 
 
 
 void (*af_draw[])(node_t*, camact_t ca) = {
-	drawStemNode, drawFsigNode, drawCallNode
+	drawStemNode, drawFsigNode, drawCallNode, drawBiNode
 };
 void (*af_keyb[])(node_t*, SDL_Event* evp) = {
-	keybStemNode, keybFsigNode, keybCallNode
+	keybStemNode, keybFsigNode, keybCallNode, keybBiNode
 };
 void (*af_init[])(node_t*) = {
-	initStemNode, initFsigNode, initCallNode
+	initStemNode, initFsigNode, initCallNode, initBiNode
 };
 void (*af_free[])(node_t*) = {
-	freeStemNode, freeFsigNode, freeCallNode
+	freeStemNode, freeFsigNode, freeCallNode, freeBiNode
 };
 float (*af_geth[])(node_t*) = {
-	gethStemNode, gethFsigNode, gethCallNode
+	gethStemNode, gethFsigNode, gethCallNode, gethBiNode
 };
 
+/*
 // needs to be updated for multiple-character names
 string_list listVariables(int i0, node_t* nodes) {
 	string_list sl = newStringList();
@@ -66,7 +68,7 @@ string_list listVariables(int i0, node_t* nodes) {
 		}
 	}
 	return sl;
-}
+}*/
 
 void compileBlock(
 	int i0, node_t* nodes, // nodes[i0] should be block info node
@@ -74,13 +76,56 @@ void compileBlock(
 ) {
 	int parvarc = vars->c;
 	int psiz = sizeof(void*);
+	FILE* fp = fopen("out.asm", "w");
 	for (int i = i0; i >= 0; i = nodes[i].ni.next_node) {
-		if (nodes[i].tag != Tag_node_call)
+		if (nodes[i].ni.tag != Tag_node_call)
 			printf("Parse error: only call allowed for now\n");
 		u32 fi = nodes[i].call.fsig_index;
+		u32 c = fsig_list[fi].args->c;
+		int* offsets = malloc(c * sizeof(int));
+		u8* isconst = malloc(c * sizeof(u8));
+		for (int j = 0; j < c; ++j) {
+			call_input* cip = VikGetp(nodes[i].call.inputs, j);
+			if (cip->tag == Callinp_none) {
+				printf("Error: empty spot in func call\n");
+				fclose(fp);
+				return;
+			} else if (cip->tag == Callinp_const) {
+				isconst[j] = 1;
+			} else if (cip->tag == Callinp_var) {
+				isconst[j] = 0;
+				offsets[j] = cip->var.id * 8;
+			}
+		}
+		switch (fi) {
+		case 1: // set; assume var and const for now
+			fprintf(fp, "mov [fmem+%d], dword 0x", offsets[0]);
+			for (int j = 0; j < nodes[i].call.inputs->c; ++j) {
+				u8* hp = VikGetp(nodes[i].call.inputs, j);
+				if (*hp < 0xa) fputc(*hp + 0x30, fp);
+				else fputc(*hp - 0xa + 'a', fp);
+			}
+			fputc(10, fp);
+			break;
+		case 2: // add, assume var and var
+			fprintf(fp, "mov rcx, [fmem+%d]\n", offsets[1]);
+			fprintf(fp, "mov rdx, [fmem+%d]\n", offsets[2]);
+			fprintf(fp, "add rcx, rdx\n");
+			fprintf(fp, "mov [fmem+%d], rdx\n\n", offsets[0]);
+			break;
+		case 3: // print char; assume var
+			fprintf(fp, "mov rax, 1\n");
+			fprintf(fp, "mov rdi, 1\n");
+			fprintf(fp, "mov rdx, 1\n");
+			fprintf(fp, "mov rsi, fmem+%d\n", offsets[0]);
+			fprintf(fp, "syscall\n\n");
+			break;
+		}
+		free(offsets); free(isconst);
 	}
+	fclose(fp);
 }
-
+/*
 // needs to be updated for multiple-character names
 void compileFunc(int i0, node_t* nodes) {
 	int psiz = sizeof(void*);
@@ -123,7 +168,7 @@ void compileFunc(int i0, node_t* nodes) {
 	fprintf(fp, "mov eax, 0x3c\nmov edi, 0\nsyscall\n");
 	fprintf(fp, "segment .bss\nfmem:\nresb %d\n", bytespace);
 	fclose(fp);
-}
+}*/
 
 #define HandleEvent() handle_event(&event, nodes, &ca, &selnode, &nodec, &focus)
 char handle_event(
@@ -178,7 +223,7 @@ char handle_event(
 			//ca.camy += 0;
 		}
 		else if (evp->key.keysym.sym == 'l') {
-			compileFunc(0, nodes);
+			//compileFunc(0, nodes);
 		}
 		else {
 			(af_keyb[nodes[*snp].ni.tag])

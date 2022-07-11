@@ -35,6 +35,13 @@ void* expandVector(viktor v) {
 	return getElementFromVector(v, v->c-1);
 }
 
+void shrinkVector(viktor v) {
+	if (v->c > 0) {
+		v->c--;
+		v->s = realloc(v->s, v->c * v->bype);
+	}
+}
+
 
 
 #define VikNew(type) newVector(sizeof(type))
@@ -43,6 +50,7 @@ void* expandVector(viktor v) {
 #define VikGett(v, i, t) ((t*) getElementFromVector(v, i))
 #define VikDrop(v) dropVector(v)
 #define VikExp(v) expandVector(v)
+#define VikShrink(v) shrinkVector(v)
 
 void VikAppvik(viktor v, viktor vo) {
 	for (int i = 0; i < vo->c; ++i) {

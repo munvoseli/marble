@@ -15,7 +15,7 @@ typedef struct call_node { nodeinfo_t ni;
 	int fsig_index;
 	int srow;
 	int scol;
-	char* string_arr;
+	viktor inputs; // <>call_input
 } call_node;
 
 typedef struct stem_node { nodeinfo_t ni;
@@ -58,6 +58,7 @@ typedef union { nodeinfo_t ni;
 	fsig_node fsig;
 	call_node call;
 	stem_node stem;
+	bi_node bi;
 	struct for_node forn;
 	struct if_node ifn;
 	struct scope_node scope;
@@ -67,16 +68,21 @@ typedef union { nodeinfo_t ni;
 void drawStemNode(node_t* np, camact_t ca);
 void drawFsigNode(node_t* np, camact_t ca);
 void drawCallNode(node_t* np, camact_t ca);
+void drawBiNode(node_t* np, camact_t ca);
 void keybStemNode(node_t* np, SDL_Event* evp);
 void keybFsigNode(node_t* np, SDL_Event* evp);
 void keybCallNode(node_t* np, SDL_Event* evp);
+void keybBiNode(node_t* np, SDL_Event* evp);
 void initStemNode(node_t* np);
 void initFsigNode(node_t* np);
 void initCallNode(node_t* np);
+void initBiNode(node_t* np);
 void freeStemNode(node_t* np);
 void freeFsigNode(node_t* np);
 void freeCallNode(node_t* np);
+void freeBiNode(node_t* np);
 float gethStemNode(node_t* np);
 float gethFsigNode(node_t* np);
 float gethCallNode(node_t* np);
+float gethBiNode(node_t* np);
 

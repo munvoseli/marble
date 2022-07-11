@@ -78,6 +78,46 @@ void fillGlyph(unsigned char g, float* points) { // 4.0 x 8.0
 			points[i++] = gly_mt[j];
 }
 
+void drawViktorHex(viktor v, float x, float y, camact_t ca) {
+	ca.camx += x;
+	ca.camy += y;
+	float vertdata[4 * 3 * sizeof(float) * 2];
+	for (int i = 0; i < v->c; ++i) {
+		u8* hp = VikGetp(v, i);
+		int vi = 0;
+		int tric = 0;
+		if (*hp & 8) {
+			vertdata[vi++] = 0.0; vertdata[vi++] = 0.0;
+			vertdata[vi++] = 0.0; vertdata[vi++] = 4.0;
+			vertdata[vi++] = 2.0; vertdata[vi++] = 2.0;
+			++tric;
+		};
+		if (*hp & 4) {
+			vertdata[vi++] = 0.0; vertdata[vi++] = 4.0;
+			vertdata[vi++] = 0.0; vertdata[vi++] = 8.0;
+			vertdata[vi++] = 2.0; vertdata[vi++] = 6.0;
+			++tric;
+		};
+		if (*hp & 2) {
+			vertdata[vi++] = 2.0; vertdata[vi++] = 6.0;
+			vertdata[vi++] = 0.0; vertdata[vi++] = 4.0;
+			vertdata[vi++] = 2.0; vertdata[vi++] = 2.0;
+			++tric;
+		};
+		if (*hp & 1) {
+			vertdata[vi++] = 2.0; vertdata[vi++] = 6.0;
+			vertdata[vi++] = 4.0; vertdata[vi++] = 4.0;
+			vertdata[vi++] = 2.0; vertdata[vi++] = 2.0;
+			++tric;
+		};
+		int compc = tric * 6;
+		for (int j = 0; j < compc; j += 2)
+			vertdata[j] += 5 * i;
+		drawWithCamact(compc, vertdata, GL_TRIANGLES,
+			1.0, 0.8, 0.0, ca);
+	}
+}
+
 void drawString(const char* str, float x, float y, camact_t ca) {
 	float* vertdata = NULL;
 	ca.camx += x;
