@@ -5,10 +5,14 @@ enum {
 	Tag_node_bi
 };
 
+struct bi_node;
+
 typedef struct {
 	u8 tag; // function signature (node), call, for, if, scope...
 	u32 prev_node;
 	u32 next_node;
+
+	struct bi_node* block; // node_t*
 } nodeinfo_t;
 
 typedef struct call_node { nodeinfo_t ni;
@@ -57,7 +61,7 @@ typedef struct scope_node { nodeinfo_t ni;
 } scope_node;
 
 // 0: fsig (node)
-typedef union { nodeinfo_t ni;
+typedef union node_un { nodeinfo_t ni;
 	fsig_node fsig;
 	call_node call;
 	stem_node stem;

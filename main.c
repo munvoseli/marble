@@ -70,6 +70,51 @@ string_list listVariables(int i0, node_t* nodes) {
 	return sl;
 }*/
 
+void compileCall(node_t* nodep, FILE* fp) {
+	u32 fi = nodep->call.fsig_index;
+	u32 c = fsig_list[fi].args->c;
+	int* offsets = malloc(c * sizeof(int));
+	u8* isconst = malloc(c * sizeof(u8));
+	for (int j = 0; j < c; ++j) {
+		call_input* cip = VikGetp(nodep->call.inputs, j);
+		if (cip->tag == Callinp_none) {
+			printf("Error: empty spot in func call\n");
+			fclose(fp);
+			return;
+		} else if (cip->tag == Callinp_const) {
+			isconst[j] = 1;
+		} else if (cip->tag == Callinp_var) {
+			isconst[j] = 0;
+			offsets[j] = cip->var.id * 8;
+		}
+	}
+	switch (fi) {
+	case 1: // set; assume var and const for now
+		fprintf(fp, "mov [fmem+%d], dword 0x", offsets[0]);
+		for (int j = 0; j < nodep->call.inputs->c; ++j) {
+			u8* hp = VikGetp(nodep->call.inputs, j);
+			if (*hp < 0xa) fputc(*hp + 0x30, fp);
+			else fputc(*hp - 0xa + 'a', fp);
+		}
+		fputc(10, fp);
+		break;
+	case 2: // add, assume var and var
+		fprintf(fp, "mov rcx, [fmem+%d]\n", offsets[1]);
+		fprintf(fp, "mov rdx, [fmem+%d]\n", offsets[2]);
+		fprintf(fp, "add rcx, rdx\n");
+		fprintf(fp, "mov [fmem+%d], rdx\n\n", offsets[0]);
+		break;
+	case 3: // print char; assume var
+		fprintf(fp, "mov rax, 1\n");
+		fprintf(fp, "mov rdi, 1\n");
+		fprintf(fp, "mov rdx, 1\n");
+		fprintf(fp, "mov rsi, fmem+%d\n", offsets[0]);
+		fprintf(fp, "syscall\n\n");
+		break;
+	}
+	free(offsets); free(isconst);
+}
+
 void compileBlock(
 	int i0, node_t* nodes, // nodes[i0] should be block info node
 	viktor vars // <>var_data
@@ -78,50 +123,11 @@ void compileBlock(
 	int psiz = sizeof(void*);
 	FILE* fp = fopen("out.asm", "w");
 	for (int i = i0; i >= 0; i = nodes[i].ni.next_node) {
-		if (nodes[i].ni.tag != Tag_node_call)
-			printf("Parse error: only call allowed for now\n");
-		u32 fi = nodes[i].call.fsig_index;
-		u32 c = fsig_list[fi].args->c;
-		int* offsets = malloc(c * sizeof(int));
-		u8* isconst = malloc(c * sizeof(u8));
-		for (int j = 0; j < c; ++j) {
-			call_input* cip = VikGetp(nodes[i].call.inputs, j);
-			if (cip->tag == Callinp_none) {
-				printf("Error: empty spot in func call\n");
-				fclose(fp);
-				return;
-			} else if (cip->tag == Callinp_const) {
-				isconst[j] = 1;
-			} else if (cip->tag == Callinp_var) {
-				isconst[j] = 0;
-				offsets[j] = cip->var.id * 8;
-			}
+		if (nodes[i].ni.tag == Tag_node_call) {
+			compileCall(&nodes[i], fp);
 		}
-		switch (fi) {
-		case 1: // set; assume var and const for now
-			fprintf(fp, "mov [fmem+%d], dword 0x", offsets[0]);
-			for (int j = 0; j < nodes[i].call.inputs->c; ++j) {
-				u8* hp = VikGetp(nodes[i].call.inputs, j);
-				if (*hp < 0xa) fputc(*hp + 0x30, fp);
-				else fputc(*hp - 0xa + 'a', fp);
-			}
-			fputc(10, fp);
-			break;
-		case 2: // add, assume var and var
-			fprintf(fp, "mov rcx, [fmem+%d]\n", offsets[1]);
-			fprintf(fp, "mov rdx, [fmem+%d]\n", offsets[2]);
-			fprintf(fp, "add rcx, rdx\n");
-			fprintf(fp, "mov [fmem+%d], rdx\n\n", offsets[0]);
-			break;
-		case 3: // print char; assume var
-			fprintf(fp, "mov rax, 1\n");
-			fprintf(fp, "mov rdi, 1\n");
-			fprintf(fp, "mov rdx, 1\n");
-			fprintf(fp, "mov rsi, fmem+%d\n", offsets[0]);
-			fprintf(fp, "syscall\n\n");
-			break;
-		}
-		free(offsets); free(isconst);
+		else
+			printf("Parse error: block not supported yet\n");
 	}
 	fclose(fp);
 }
@@ -218,12 +224,15 @@ char handle_event(
 				nodes[*snp].ni.next_node
 				= *ncp;
 				++*ncp;
+				nodes[*ncp].ni.block = &nodes[0].bi;
 			}
 			*snp = nodes[*snp].ni.next_node;
 			//ca.camy += 0;
 		}
 		else if (evp->key.keysym.sym == 'l') {
-			//compileFunc(0, nodes);
+			viktor trimill = VikNew(var_data);
+			compileBlock(0, nodes, trimill);
+			free(trimill);
 		}
 		else {
 			//(af_keyb[nodes[*snp].ni.tag])

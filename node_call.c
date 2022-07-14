@@ -20,14 +20,30 @@ void iterresetCallNode(void* vp) {
 }
 
 void drawCallNode(node_t* np, camact_t ca) {
-	call_node* np = (call_node*) vp;
-	call_node_istate iter;
-	iter.np = np;
-	iterresetCallNode(&iter);
-	drawTableIter(np->scol, np->srow,
-		1, fsig_list[np->fsig_index].args->c,
-		fsig_list[np->fsig_index].name,
-		iterateCallNode, iterresetCallNode, &iter, ca);
+//	call_node* np = (call_node*) vp;
+//	call_node_istate iter;
+//	iter.np = np;
+//	iterresetCallNode(&iter);
+//	drawTableIter(np->scol, np->srow,
+//		1, fsig_list[np->fsig_index].args->c,
+//		fsig_list[np->fsig_index].name,
+//		iterateCallNode, iterresetCallNode, &iter, ca);
+	int c = fsig_list[np->call.fsig_index].args->c;
+	printf("%d %d\n", np->call.fsig_index, c);
+	drawRect(0.0, 12.0 + 8.0 * c, 1.0, 0.0, ca);
+	drawRect(
+		1.0, 2.0 + 8.0 * (c - np->call.srow - 1),
+		2.0, 2.0 + 8.0 * (c - np->call.srow - 1) + 8.0, ca);
+	for (int i = 0; i < c; ++i) {
+		call_input* cip = VikGetp(np->call.inputs, i);
+		// TODO: better variable scope
+		if (cip->tag == Callinp_var)
+		drawViktorHex(
+		VikGett(np->ni.block->vars, cip->var.id, var_data)->name,
+		2.0, 8.0 * (c - 1 - i) + 2.0, ca);
+		else if (cip->tag == Callinp_const)
+		drawViktorHex(cip->con.text, 2.0, 8.0 * (c - 1 - i) + 2.0, ca);
+	}
 }
 
 void callNodeSetFsig(node_t* np, int fi) {
@@ -61,6 +77,20 @@ void keybCallNode(node_t* np, SDL_Event* evp) {
 				*hp = c - 'a' + 0xa;
 			} else {
 				VikShrink(cip->con.text);
+			}
+		} else if (cip->tag == Callinp_var) {
+			if (c == 'h') {
+				if (cip->var.id > 0) cip->var.id--;
+			} else if (c == 'l') {
+				cip->var.id++;
+			}
+		} else if (cip->tag == Callinp_none) {
+			if (c == 'v') {
+				cip->tag = Callinp_var;
+				cip->var.id = 0;
+			} else if (c == 'c') {
+				cip->tag = Callinp_const;
+				cip->con.text = VikNew(u8);
 			}
 		}
 	}
