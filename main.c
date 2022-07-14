@@ -232,7 +232,7 @@ char handle_event(
 		else if (evp->key.keysym.sym == 'l') {
 			viktor trimill = VikNew(var_data);
 			compileBlock(0, nodes, trimill);
-			free(trimill);
+			VikDrop(trimill);
 		}
 		else {
 			//(af_keyb[nodes[*snp].ni.tag])
