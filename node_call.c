@@ -28,8 +28,9 @@ void drawCallNode(node_t* np, camact_t ca) {
 //		1, fsig_list[np->fsig_index].args->c,
 //		fsig_list[np->fsig_index].name,
 //		iterateCallNode, iterresetCallNode, &iter, ca);
+	//printf("draw begin\n");
 	int c = fsig_list[np->call.fsig_index].args->c;
-	printf("%d %d\n", np->call.fsig_index, c);
+	//printf("%d %d\n", np->call.fsig_index, c);
 	drawRect(0.0, 12.0 + 8.0 * c, 1.0, 0.0, ca);
 	drawRect(
 		1.0, 2.0 + 8.0 * (c - np->call.srow - 1),
@@ -37,13 +38,23 @@ void drawCallNode(node_t* np, camact_t ca) {
 	for (int i = 0; i < c; ++i) {
 		call_input* cip = VikGetp(np->call.inputs, i);
 		// TODO: better variable scope
-		if (cip->tag == Callinp_var)
-		drawViktorHex(
-		VikGett(np->ni.block->vars, cip->var.id, var_data)->name,
-		2.0, 8.0 * (c - 1 - i) + 2.0, ca);
+		if (cip->tag == Callinp_var) {
+			//printf("draw var %d begin\n", cip->var.id);
+			//printf("block pointer %x\n", np->ni.block);
+			//printf("node  pointer %x\n", np);
+			//printf("var count %d\n", np->ni.block->vars->c);
+			drawViktorHex(
+				VikGett(
+					np->ni.block->vars,
+					cip->var.id,
+					var_data)->name,
+				2.0, 8.0 * (c - 1 - i) + 2.0, ca);
+			//printf("draw var end\n");
+		}
 		else if (cip->tag == Callinp_const)
 		drawViktorHex(cip->con.text, 2.0, 8.0 * (c - 1 - i) + 2.0, ca);
 	}
+	//printf("draw end\n");
 }
 
 void callNodeSetFsig(node_t* np, int fi) {
@@ -62,6 +73,9 @@ void keybCallNode(node_t* np, SDL_Event* evp) {
 	if (c == 'n') {
 		VikDrop(np->call.inputs);
 		callNodeSetFsig(np, np->call.fsig_index + 1);
+	} else if (c == 'p') {
+		VikDrop(np->call.inputs);
+		callNodeSetFsig(np, np->call.fsig_index - 1);
 	} else if (c == 'j') {
 		np->call.srow++;
 	} else if (c == 'k') {

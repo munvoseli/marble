@@ -89,12 +89,17 @@ void compileCall(node_t* nodep, FILE* fp) {
 		}
 	}
 	switch (fi) {
+	case 0: printf("ur a spaghetti\n");
 	case 1: // set; assume var and const for now
 		fprintf(fp, "mov [fmem+%d], dword 0x", offsets[0]);
-		for (int j = 0; j < nodep->call.inputs->c; ++j) {
-			u8* hp = VikGetp(nodep->call.inputs, j);
-			if (*hp < 0xa) fputc(*hp + 0x30, fp);
-			else fputc(*hp - 0xa + 'a', fp);
+		{
+			call_input* cip = VikGetp(nodep->call.inputs, 1);
+			viktor text = cip->con.text;
+			for (int j = 0; j < text->c; ++j) {
+				u8* hp = VikGetp(text, j);
+				if (*hp < 0xa) fputc(*hp + 0x30, fp);
+				else fputc(*hp - 0xa + 'a', fp);
+			}
 		}
 		fputc(10, fp);
 		break;
@@ -102,7 +107,7 @@ void compileCall(node_t* nodep, FILE* fp) {
 		fprintf(fp, "mov rcx, [fmem+%d]\n", offsets[1]);
 		fprintf(fp, "mov rdx, [fmem+%d]\n", offsets[2]);
 		fprintf(fp, "add rcx, rdx\n");
-		fprintf(fp, "mov [fmem+%d], rdx\n\n", offsets[0]);
+		fprintf(fp, "mov [fmem+%d], rcx\n\n", offsets[0]);
 		break;
 	case 3: // print char; assume var
 		fprintf(fp, "mov rax, 1\n");
@@ -122,14 +127,22 @@ void compileBlock(
 	int parvarc = vars->c;
 	int psiz = sizeof(void*);
 	FILE* fp = fopen("out.asm", "w");
+	fprintf(fp, "segment .data\nglobal _start\nsegment .text\n_start:\n");
 	for (int i = i0; i >= 0; i = nodes[i].ni.next_node) {
 		if (nodes[i].ni.tag == Tag_node_call) {
+			printf("Compiling call node\n");
 			compileCall(&nodes[i], fp);
+		}
+		else if (nodes[i].ni.tag == Tag_node_bi) {
+			printf("Block node encountered\n");
 		}
 		else
 			printf("Parse error: block not supported yet\n");
 	}
+	fprintf(fp, "mov eax, 0x3c\nmov edi, 0\nsyscall\n");
+	fprintf(fp, "segment .bss\nfmem:\nresb %d\n", 128);
 	fclose(fp);
+	printf("Finished compiling.\n");
 }
 /*
 // needs to be updated for multiple-character names
@@ -223,8 +236,10 @@ char handle_event(
 				initStemNode(&nodes[*ncp]);
 				nodes[*snp].ni.next_node
 				= *ncp;
-				++*ncp;
 				nodes[*ncp].ni.block = &nodes[0].bi;
+				++*ncp;
+				printf("nodesp   %x\n", nodes);
+				printf("nodesbip %x\n", &nodes[0].bi);
 			}
 			*snp = nodes[*snp].ni.next_node;
 			//ca.camy += 0;

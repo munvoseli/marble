@@ -41,7 +41,6 @@ void initBiNode(node_t* np) {
 	np->bi.cx = 0;
 	np->bi.cy = 0;
 
-	np->bi.parentBlock = NULL;
 	np->bi.fsig = NULL;
 	np->bi.firstNode = -1;
 	np->bi.vars = VikNew(var_data);

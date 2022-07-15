@@ -82,6 +82,7 @@ void drawViktorHex(viktor v, float x, float y, camact_t ca) {
 	ca.camx += x;
 	ca.camy += y;
 	float vertdata[4 * 3 * sizeof(float) * 2];
+	//printf("%d characters\n", v->c);
 	for (int i = 0; i < v->c; ++i) {
 		u8* hp = VikGetp(v, i);
 		int vi = 0;

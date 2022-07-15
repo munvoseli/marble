@@ -37,7 +37,6 @@ typedef struct bi_node { nodeinfo_t ni;
 	int cx;
 	int cy;
 
-	struct bi_node* parentBlock; // NULL if lestmost
 	fsig_node* fsig; // NULL if not leftmost
 	int firstNode;
 	viktor vars; // <>var_data
