@@ -6,14 +6,21 @@
 
 
 // v0t xry sim / vtxs
+// i have no idea what this means anymore
+// but it says "the opposite of three symbols"
+// best guess is some sort of half-life/portal reference
+// oooh i think maybe it's to C as v0tgil is to gil
+// yeah, it was an early name for the project
 
 // favorite super powers:
 // tryna/iden stuff, so that i don't have to let go
 // olmak, for travel
 // fv5, for obvious reasons
 // time reset, for fixing mistakes
-// sorcery is also great, if you can learn the other things with it
-// basically: tedd, five, klaus
+// sorcery would be great, if you can learn the other things with it
+//  but that feels like something the developers would patch out
+//  and then you get nothing
+// basically: ellen, five, klaus
 
 
 // node-table types
