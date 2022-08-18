@@ -3,15 +3,75 @@ julia goals:
 	R : stats
 	Perl : string processing
 	Matlab : linear algebra
+other pulling things:
+	Go : iota
+	Vale : generational references
+		pointers and safe pointers should be different
 	Rust : memory safety
-ez threads
-ez record rw
+
+need to make readily available/easy
+	threads
+	struct rw
+	testing
+	view overall layout of code
+	sdl2 / js api
+
+code to a non-programmer should be nearly self-explanatory
+using the software should also be self-explanatory
+ideally, finding algorithms would also be self-explanantory
+
 native math notation
 	but without that stupid f^-1 thing
 	and different function application
 	also get mixed fractions outta here
 	also log must take 2 arguments, only ln has 1
+algebraic data types
+find out what monads are
+
+easy to write correct programs
+
 
 not-quite-regex
 a bit more like https://github.com/yoav-lavi/melody
 
+
+
+
+image editor:
+gradient map
+vector
+blender-like nodes + traditional image editor node
+
+
+many programming languages offer clean syntax
+
+weakornot
+
+c ffi
+
+vale
+nim
+go
+julia
+rust
+elixir
+
+
+i don't want the python thing of "there's only one way"
+but i do want there to be an obvious standard way
+i didn't know about serde_json when i needed to
+i didn't know about tungstenite and ended up using some outdated bad websocket library because it's what turned up in search results for "rust websocket library" until i had to convert my code to tungstenite and then adapt it to tokio tungstenite
+
+
+learn whatever tensorflow is
+
+
+errors
+
+if an error happens in a math formula
+there are a lot of operations there, and in many cases you're only going to have one thing for errors
+
+and then there are things like rust match block, where you have many paths
+
+
+OpenCL

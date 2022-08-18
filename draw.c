@@ -1,3 +1,6 @@
+// byte glyphs: 4+1 x 10
+// smol glyphs: 4   x  8
+
 
 int getTriCount(unsigned char g) {
 	int c = 0;

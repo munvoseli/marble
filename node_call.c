@@ -31,6 +31,8 @@ void drawCallNode(node_t* np, camact_t ca) {
 	//printf("draw begin\n");
 	int c = fsig_list[np->call.fsig_index].args->c;
 	//printf("%d %d\n", np->call.fsig_index, c);
+	drawString(fsig_list[np->call.fsig_index].name, 0,
+		gethCallNode(np) - 5.0, ca);
 	drawRect(0.0, 12.0 + 8.0 * c, 1.0, 0.0, ca);
 	drawRect(
 		1.0, 2.0 + 8.0 * (c - np->call.srow - 1),
@@ -119,5 +121,6 @@ void initCallNode(node_t* np) {
 void freeCallNode(node_t* np) {}
 
 float gethCallNode(node_t* np) {
-	return gethTable(fsig_list[np->call.fsig_index].args->c);
+	int c = fsig_list[np->call.fsig_index].args->c;
+	return 12.0 + 8.0 * c;
 }
